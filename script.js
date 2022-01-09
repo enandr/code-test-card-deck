@@ -179,3 +179,65 @@ const deck = new CardDeck(".deck", ".hand");
 
 // Take a look at the deck object and its methods.
 console.log(deck);
+
+drawFromDeckUsingQueryParams();
+
+function drawFromDeckUsingQueryParams() {
+	const urlSearchParams = new URLSearchParams(window.location.search);
+	const cardsToPull = Object.fromEntries(urlSearchParams.entries());
+
+	// check if there is a limit, if so convert it to a number
+	cardsToPull.limit ? cardsToPull.limit = parseInt(cardsToPull.limit) : null;
+
+	// draws specific cards from the deck. sorts if needed and limits if needed.
+	if (cardsToPull.cards) {
+		cardsToPull.cards = cardsToPull.cards.split(' ');
+		cardsToPull.cards.forEach((card, index) => {
+			// corrects the card name if it was not entered into the query param correctly
+			card = `${card[0].toLowerCase()}-${card[2].toUpperCase()}`
+			cardsToPull.cards[index] = card;
+		})
+		deck.filter('id', cardsToPull.cards);
+		cardsToPull.sorted ? runSort(cardsToPull.sorted) : null;
+		cardsToPull.limit ? deck.limit(cardsToPull.limit) : null;
+		deck.drawFiltered();
+		deck.shuffleDeck();
+	}
+
+	// draws all cards from specific suits from the deck. sorts if needed and limits if needed.
+	if (cardsToPull.suits) {
+		cardsToPull.suits = cardsToPull.suits.split(' ');
+		cardsToPull.suits.forEach((suit, index) => {
+			// corrects the suit name if it was not entered into the query param correctly
+			suit = suit.toLowerCase();
+			cardsToPull.suits[index] = suit;
+		})
+		deck.filter('suit', cardsToPull.suits);
+		cardsToPull.sorted ? runSort(cardsToPull.sorted) : null;
+		cardsToPull.limit ? deck.limit(cardsToPull.limit) : null;
+		deck.drawFiltered();
+		deck.shuffleDeck();
+	}
+
+	// draws all cards that have a specifc rank from the deck. sorts if needed and limits if needed.
+	if (cardsToPull.ranks) {
+		cardsToPull.ranks = cardsToPull.ranks.split(' ');
+		cardsToPull.ranks.forEach((rank,index) => {
+			// corrects each rank to be a number
+			rank = parseInt(rank);
+			cardsToPull.ranks[index] = rank;
+		})
+		deck.filter('rank', cardsToPull.ranks);
+		cardsToPull.sorted ? runSort(cardsToPull.sorted) : null;
+		cardsToPull.limit ? deck.limit(cardsToPull.limit) : null;
+		deck.drawFiltered();
+		deck.shuffleDeck();
+	}
+}
+
+function runSort(filterType) {
+	if (filterType === 'asc' || filterType === 'desc') {
+		deck.sort();
+		filterType === 'desc' ? deck.possibleCards.reverse() : null;
+	}
+}
